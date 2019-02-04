@@ -8,8 +8,84 @@
   --yellow: rgb(243, 149, 13);
   --darkOrange: rgb(154, 96, 0);
 }
+html {
+  font-size: 100%;
+}
 body {
   background: var(--main-bg);
+  font-size: 0.875rem;
+}
+.config {
+  background: #c8ccd4;
+  padding: 10px;
+}
+.config .app-name {
+  text-align: center;
+}
+.config .app-name img {
+  width: 50px;
+}
+.config ul {
+  list-style-type: none;
+}
+.config li {
+  margin: 3px 0;
+  display: flex;
+}
+.config span {
+  margin: 0 10px;
+  font-size: 0.875rem;
+}
+.config input {
+  min-width: 300px;
+  padding: 5px;
+}
+.config .button {
+  display: inline-block;
+  background: var(--green);
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.all-repos-wrap {
+  display: flex;
+}
+.all-repos-wrap > div {
+  flex-grow: 1;
+}
+.all-repos-wrap.horizontal {
+  flex-direction: column;
+}
+.repo-heading {
+  background: var(--blue);
+  color: #fff;
+  padding: 10px;
+  margin: 10px 0;
+}
+.show {
+  display: inline-block;
+  background: var(--yellow);
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50px;
+  margin: 5px 10px;
+  position: absolute;
+  right: 10px;
+  top: 0;
+  z-index: 999;
+  border: 2px solid #5fd7e8;
+}
+.hide {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50px;
+  position: absolute;
+  right: 10px;
 }
 .pull-request-wrap {
   background: var(--elem-bg);
@@ -20,12 +96,24 @@ body {
   padding-top: 20px;
   position: relative;
 }
-.pull-request-wrap.new {
-  box-shadow: 0 0 25px var(--blue);
-  border: 1px solid var(--blue)
+.react-tooltip-lite {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+  border-radius: 50px;
+}
+.react-tooltip-lite-arrow {
+  border-color: #fff;
+}
+.pull-request-reivew-tooltip {
+  display: inline-block;
 }
 .pull-request-wrap.old {
   background: var(--darkOrange);
+}
+.config .old {
+  background: var(--darkOrange);
+  color: #fff;
 }
 .pull-request-wrap.mergeable {
   background: var(--darkGreen);
@@ -37,10 +125,10 @@ body {
   color: var(--blue);
 }
 .pull-request-title {
-  font-size: 20px;
+  font-size: 1rem;
 }
 .pull-request-state {
-  font-size: 12px;
+  font-size: 0.5rem;
   font-weight: bold;
   color: var(--green);
   border: 1px solid var(--green);
@@ -50,17 +138,24 @@ body {
 }
 .pull-request-ago {
   color: #72deef;
-  text-decoration: underline;
 }
 .pull-request-number {
   display: inline-block;
-  font-size: 14px;
+  font-size: 0.875rem;
   padding: 5px;
   background: var(--blue);
+  text-decoration: underline;
   color: #fff;
   margin-right: 10px;
   border-radius: 5px;
   font-weight: bold;
+}
+
+.pull-request-number a {
+  color: #fff;
+}
+.pull-request-number a:hover {
+  text-decoration: none;
 }
 .pull-request-user {
   display: inline-block;
