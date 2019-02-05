@@ -259,11 +259,7 @@ class App extends Component {
   renderRepo(repoName) {
     const repoPR = this.state.prData[repoName];
 
-    if (!repoPR) {
-      return <div key={repoName}></div>
-    }
     return <div key={repoName} className={repoName}><h4 className="repo-heading">{repoName}</h4>{repoPR.map(pr => this.renderPR(repoName, pr))}</div>
-
   }
   render() {
     if (!this.state.bootstraped) {
