@@ -296,7 +296,7 @@ class App extends Component {
       return (
         <div>
           {this.renderConfig()}
-          <p>If loading takes too long, check your app config and network connection</p>
+          <p style={{color: '#fff'}}>If loading takes too long, check your app config and network connection</p>
           <img src="https://loading.io/spinners/dual-ring/index.dual-ring-loader.svg" alt="loading"/>
         </div>
       )
