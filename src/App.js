@@ -13,6 +13,7 @@ class App extends Component {
       repo: '',
       refreshIntervalInMinutes: 2,
       daysForOldMark: 3,
+      emoji: 'no',
       vertical: 'vertical'
     }
 
@@ -138,6 +139,27 @@ class App extends Component {
     ? <div className="error">Error occured. Possible issue: API limit rate exceeded or service down or access_token not permitted or repo not found. If you reach API limit, it is good to raise the refresh rate internval to higher number. Check console/network.</div>
     : ''
   }
+
+  renderEmoji(numOfComments) {
+    if (this.config.emoji === 'no') {
+      return ''
+    }
+    let emoji = '😀';
+    if (numOfComments > 0 && numOfComments < 3) {
+      emoji = '🙄';
+    }
+    if (numOfComments > 2 && numOfComments < 6) {
+      emoji = '🤨';
+    }
+    if (numOfComments > 5 && numOfComments < 11) {
+      emoji = '😓';
+    }
+    if (numOfComments > 10) {
+      emoji = '😱';
+    }
+    return <span role="img" aria-label="feeling based on comments">{emoji}</span>
+  }
+
   renderPR(repo, pr) {
     const decideOldClass = (pr) => {
       const maxDays = this.config.daysForOldMark; // old if more than 7 days
@@ -154,7 +176,7 @@ class App extends Component {
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
     
-    const pullComments = this.state.comments[repo + '_' + pr.number];
+    const numOfComments = this.state.comments[repo + '_' + pr.number];
 
     return (
       <div key={pr.number} className={`pull-request-wrap ${decideOldClass(pr)}  ${mergeable}`}>
@@ -171,7 +193,7 @@ class App extends Component {
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
           <div>
-            <div className="review_comments"><span role="img" aria-label="comments:">💬</span> {pullComments}</div>
+            <div className="review_comments"><span role="img" aria-label="comments:">💬</span> {numOfComments} {this.renderEmoji(numOfComments)}</div>
             {this.renderReviews(repo, pr.number)}
           </div>
           </div>
@@ -223,6 +245,10 @@ class App extends Component {
           <li>
             <input type="text" name="vertical" id="vertical" defaultValue={this.config.vertical}/>
             <span>Display of multiple repos horizontal/vertical</span>
+          </li>
+          <li>
+            <input type="text" name="emoji" id="emoji" defaultValue={this.config.emoji}/>
+            <span>Show emoji based on comments number (yes/no)</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
