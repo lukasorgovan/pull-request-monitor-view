@@ -202,7 +202,7 @@ class App extends Component {
           </li>
           <li>
             <input type="text" name="repo" id="repo" defaultValue={this.config.repo}/>
-            <span>repositories name [for multiple use "," as delimeter] (e.g. "facebook/create-react-app" https://github.com/<strong>facebook/create-react-app</strong>)</span>
+            <span>repositories name (e.g. if your repo is https://github.com/<strong>facebook/create-react-app</strong>, you need to type <strong>facebook/create-react-app</strong>) You can have multiple repos, just separate them with comma (repo,repo)</span>
           </li>
           <li>
             <input type="number" min="1" name="refreshIntervalInMinutes" id="refreshIntervalInMinutes" defaultValue={this.config.refreshIntervalInMinutes}/>
