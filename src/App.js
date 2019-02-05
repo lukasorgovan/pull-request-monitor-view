@@ -171,7 +171,7 @@ class App extends Component {
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
           <div>
-            <div className="review_comments"><span role="img">💬</span> {pullComments}</div>
+            <div className="review_comments"><span role="img" aria-label="comments:">💬</span> {pullComments}</div>
             {this.renderReviews(repo, pr.number)}
           </div>
           </div>
@@ -259,7 +259,11 @@ class App extends Component {
   renderRepo(repoName) {
     const repoPR = this.state.prData[repoName];
 
+    if (!repoPR) {
+      return <div key={repoName}><h4 className="repo-heading">{repoName}</h4></div>
+    }
     return <div key={repoName} className={repoName}><h4 className="repo-heading">{repoName}</h4>{repoPR.map(pr => this.renderPR(repoName, pr))}</div>
+
   }
   render() {
     if (!this.state.bootstraped) {
