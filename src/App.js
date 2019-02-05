@@ -159,7 +159,7 @@ class App extends Component {
         <div className="pull-request-meta">
           <div>
             <span className="pull-request-number">
-              <a href={`https://github.com/${this.config.repo}/pull/${pr.number}`} rel="noopener noreferrer" target="_blank">{pr.number}</a>
+              <a href={pr.html_url} rel="noopener noreferrer" target="_blank">{pr.number}</a>
             </span> 
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
@@ -243,7 +243,7 @@ class App extends Component {
       )});
 
     if (filteredReviews.length === 0) {
-      return <span className="no-reviews">No reivews yet</span>
+      return <span className="no-reviews">No reviews yet</span>
     }
 
     return filteredReviews;
@@ -269,6 +269,12 @@ class App extends Component {
 
     return (
       <div>
+        <div className="legend">
+          <ul>
+            <li className="mergable">is mergable</li>
+            <li className="old">older then {this.config.daysForOldMark} days</li>
+          </ul>
+        </div>
         {this.renderConfig()}
         {this.displayError()}
         <div className={'all-repos-wrap ' + (this.config.vertical === 'vertical' ? 'vertical' : 'horizontal')}>
