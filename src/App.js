@@ -20,9 +20,10 @@ class App extends Component {
       error: false,
       bootstraped: false,
       reviewsFetchFired: false,
-      prData: [],
+      prData: {},
       prReviews: {},
-      mergeable: {}
+      mergeable: {},
+      comments: {}
     }
     this.config = {...defaults, ...options}
     this.handleError = this.handleError.bind(this);
@@ -61,9 +62,9 @@ class App extends Component {
           this.handleError(data);
         } else {
           this.setState((prevState) => {
-            const newData = { repo: repoName, data };
-            const prData = [...prevState.prData, newData];
-            return { error: false, bootstraped: true, prData, prReviews: {}, reviewsFetchFired: false}
+            const newStatePRData = {...prevState.prData}
+            newStatePRData[repo] = data;
+            return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
       })
@@ -82,9 +83,9 @@ class App extends Component {
 
   componentDidUpdate() {
     // Fetch aditional reviews data only when there hasn't been fired request for it already
-    if (!this.state.reviewsFetchFired && this.state.prData.length > 0) {
-      this.state.prData.forEach((singlePr) => {
-        singlePr.data.forEach((pr) => {
+    if (!this.state.reviewsFetchFired && Object.keys(this.state.prData).length > 0) {
+      Object.keys(this.state.prData).forEach((repoName) => {
+        this.state.prData[repoName].forEach((pr) => {
           fetch(this.getUrl(undefined, 'reviews', pr.url))
           .then(response => response.json())
           .then((data) => {
@@ -93,7 +94,7 @@ class App extends Component {
             } else {
               const reviews = {
                 ...this.state.prReviews,
-                [singlePr.repo + '_' + pr.number]: data
+                [repoName + '_' + pr.number]: data
               }
               this.setState( {prReviews: reviews} );
             }
@@ -108,11 +109,15 @@ class App extends Component {
             } else {
               this.setState((state) => {
                 let mergeable = {...state.mergeable}
-                mergeable[singlePr.repo + '_' + pr.number] = {}
-                mergeable[singlePr.repo + '_' + pr.number].mergeable = data.mergeable
-                mergeable[singlePr.repo + '_' + pr.number].mergeable_state = data.mergeable_state
+                mergeable[repoName + '_' + pr.number] = {}
+                mergeable[repoName + '_' + pr.number].mergeable = data.mergeable
+                mergeable[repoName + '_' + pr.number].mergeable_state = data.mergeable_state
 
-                return { mergeable }
+                let comments = {...state.comments}
+                comments[repoName + '_' + pr.number] = 0
+                comments[repoName + '_' + pr.number] = data.comments + data.review_comments;
+
+                return { mergeable, comments }
               })
             }
           })
@@ -148,6 +153,8 @@ class App extends Component {
     const mergeable = this.state.mergeable[pr.number]
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
+    
+    const pullComments = this.state.comments[repo + '_' + pr.number];
 
     return (
       <div key={pr.number} className={`pull-request-wrap ${decideOldClass(pr)}  ${mergeable}`}>
@@ -164,6 +171,7 @@ class App extends Component {
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
           <div>
+            <div className="review_comments"><span role="img">💬</span> {pullComments}</div>
             {this.renderReviews(repo, pr.number)}
           </div>
           </div>
@@ -249,11 +257,12 @@ class App extends Component {
     return filteredReviews;
   }
   renderRepo(repoName) {
-    const repoPR = this.state.prData.find((repo) => repo.repo === repoName);
+    const repoPR = this.state.prData[repoName];
+
     if (!repoPR) {
       return <div key={repoName}></div>
     }
-    return <div key={repoPR.repo} className={repoPR.repo}><h4 className="repo-heading">{repoPR.repo}</h4>{repoPR.data.map(pr => this.renderPR(repoPR.repo, pr))}</div>
+    return <div key={repoName} className={repoName}><h4 className="repo-heading">{repoName}</h4>{repoPR.map(pr => this.renderPR(repoName, pr))}</div>
 
   }
   render() {

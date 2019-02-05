@@ -210,12 +210,20 @@ body {
   top: -4px;
   left: -4px;
 }
+.review_comments {
+  display: inline-block;
+  background: #353535;
+  color: #fff;
+  padding: 5px;
+  border-radius: 10px;
+  margin: 0 2px;
+}
 .pull-request-review.CHANGES_REQUESTED .overlay {
-  animation: colorchange1 5s ease infinite;
+  animation: colorchange1 2s ease infinite;
   border: 4px solid var(--yellow);
 }
 .pull-request-review.APPROVED .overlay {
-  animation: colorchange2 5s ease infinite;
+  animation: colorchange2 2s ease infinite;
   border: 4px solid var(--green);
 }
 .reviews-loading {
