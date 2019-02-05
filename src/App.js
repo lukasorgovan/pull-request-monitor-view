@@ -64,7 +64,7 @@ class App extends Component {
         } else {
           this.setState((prevState) => {
             const newStatePRData = {...prevState.prData}
-            newStatePRData[repo] = data;
+            newStatePRData[repoName] = data;
             return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
