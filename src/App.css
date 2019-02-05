@@ -30,7 +30,7 @@ body {
   background: var(--green);
 }
 .legend li.old {
-  background: var(--yellow);
+  background: var(--darkOrange);
 }
 .config {
   background: #c8ccd4;
