@@ -149,10 +149,10 @@ class App extends Component {
       emoji = '🙄';
     }
     if (numOfComments > 2 && numOfComments < 6) {
-      emoji = '🤨';
+      emoji = '😐';
     }
     if (numOfComments > 5 && numOfComments < 11) {
-      emoji = '😓';
+      emoji = '🙈';
     }
     if (numOfComments > 10) {
       emoji = '😱';

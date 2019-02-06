@@ -70,6 +70,7 @@ body {
 }
 .all-repos-wrap > div {
   flex-grow: 1;
+  flex-basis: 0;
 }
 .all-repos-wrap.horizontal {
   flex-direction: column;
@@ -84,15 +85,17 @@ body {
   display: inline-block;
   background: var(--yellow);
   color: #fff;
-  padding: 10px;
+  padding: 6px;
   cursor: pointer;
   border-radius: 50px;
   margin: 5px 10px;
   position: absolute;
-  right: 10px;
+  right: 30px;
   top: 0;
   z-index: 999;
-  border: 2px solid #5fd7e8;
+  border: 2px solid #975f00;
+  text-shadow: 0 -1px 0 #975f00;
+  font-weight: bold;
 }
 .hide {
   display: inline-block;
