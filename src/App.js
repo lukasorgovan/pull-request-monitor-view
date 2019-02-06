@@ -172,7 +172,7 @@ class App extends Component {
       return oldClass;
     }
 
-    const mergeable = this.state.mergeable[pr.number]
+    const mergeable = this.state.mergeable[repo + '_' + pr.number]
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
     
