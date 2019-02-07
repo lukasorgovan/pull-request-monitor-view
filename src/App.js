@@ -14,7 +14,8 @@ class App extends Component {
       refreshIntervalInMinutes: 2,
       daysForOldMark: 3,
       emoji: 'no',
-      vertical: 'vertical'
+      vertical: 'vertical',
+      team: ''
     }
 
     this.state = {
@@ -24,13 +25,13 @@ class App extends Component {
       prData: {},
       prReviews: {},
       mergeable: {},
-      comments: {}
+      comments: {},
+      teamMembers: [],
     }
     this.config = {...defaults, ...options}
     this.handleError = this.handleError.bind(this);
     this.showConfig = this.showConfig.bind(this);
     this.hideConfig = this.hideConfig.bind(this);
-    window.handleError = this.handleError
   }
   getUrl(repo, type, pullURL) {
     /* Example:
@@ -59,12 +60,17 @@ class App extends Component {
         return response.json()
       })
       .then((data) => { 
-        if (data.message) {
+        if (!data || data.message) {
           this.handleError(data);
         } else {
           this.setState((prevState) => {
             const newStatePRData = {...prevState.prData}
-            newStatePRData[repoName] = data;
+            newStatePRData[repoName] = data.filter(pr => {
+              if (this.state.teamMembers.length === 0) {
+                return true;
+              }
+              return this.state.teamMembers.includes(pr.user.login)
+            });
             return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
@@ -75,10 +81,65 @@ class App extends Component {
     });
   }
 
+  startFetching() {
+    this.fetchPullRequests();
+    this.timer = window.setInterval(this.fetchPullRequests.bind(this), this.config.refreshIntervalInMinutes*60*1000);
+  }
+
+  async fetchOrgTeams(page = 1) {
+    const teamOrg = this.config.team.split('/')[0];
+    let responseData = [];
+
+    await fetch(`https://api.github.com/orgs/${teamOrg}/teams?access_token=${this.config.access_token}&page=${page}`)
+    .then(response => response.json())
+    .then((data) => {
+        if (!data || data.message) {
+          this.handleError('No teams found!');
+        }
+        responseData = data;
+    });
+    
+    if (responseData.length > 0) {
+      const newData = await this.fetchOrgTeams(++page);
+      responseData = responseData.concat(newData)
+    } 
+
+    return responseData;
+  }
+
+  async getTeamInfo() {
+    return await this.fetchOrgTeams();
+  }
+
+  setTeamInfo() {
+    this.getTeamInfo()
+    .then((teams) => {
+      const targetTeam = teams
+        .find(team => team.slug === this.config.team.split('/')[1]);
+      
+      if (!targetTeam) {
+        this.handleError('No team found!')
+      } else {
+        fetch(`https://api.github.com/teams/${targetTeam.id}/members?access_token=${this.config.access_token}`)
+        .then(response => response.json())
+        .then((data) => {
+          const teamMembers = Array.isArray(data) && data.map(member => member.login);
+          this.setState({teamMembers});
+          !this.timer && this.startFetching();
+        });
+      }
+    });
+  }
+
   componentDidMount() {
     if (this.config.repo) {
-      this.fetchPullRequests();
-      window.setInterval(this.fetchPullRequests.bind(this), this.config.refreshIntervalInMinutes*60*1000);
+      if (this.config.team) {
+        this.setTeamInfo();
+        // check team info every 24 hours
+        window.setInterval(this.setTeamInfo.bind(this), 24*60*60*1000);
+      } else {
+        this.startFetching();
+      }
     }
   }
 
@@ -130,7 +191,7 @@ class App extends Component {
     }
   }
   handleError(error) {
-    console.log(error);
+    console.warn(error);
     this.setState({error: true, bootstraped: true})
   }
 
@@ -154,8 +215,11 @@ class App extends Component {
     if (numOfComments > 5 && numOfComments < 11) {
       emoji = '🙈';
     }
-    if (numOfComments > 10) {
+    if (numOfComments > 10 && numOfComments < 21) {
       emoji = '😱';
+    }
+    if (numOfComments > 20) {
+      emoji = '💩';
     }
     return <span role="img" aria-label="feeling based on comments">{emoji}</span>
   }
@@ -227,28 +291,32 @@ class App extends Component {
         <form>
           <ul>
           <li>
-            <input type="text" name="access_token" id="access_token" defaultValue={this.config.access_token}/>
-            <span>github access_token <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Help</a></span>
+            <input type="text" name="access_token" id="access_token" placeholder="access_token" defaultValue={this.config.access_token}/>
+            <span><strong>Access token: </strong> Github access_token <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Help</a></span>
           </li>
           <li>
-            <input type="text" name="repo" id="repo" defaultValue={this.config.repo}/>
-            <span>repositories name (e.g. if your repo is https://github.com/<strong>facebook/create-react-app</strong>, you need to type <strong>facebook/create-react-app</strong>) You can have multiple repos, just separate them with comma (repo,repo)</span>
+            <input type="text" name="repo" id="repo" placeholder="owner/repo" defaultValue={this.config.repo}/>
+            <span><strong>Repositories: </strong>(e.g. if your repo is https://github.com/<strong>facebook/create-react-app</strong>, you need to type <strong>facebook/create-react-app</strong>) You can have multiple repos, just separate them with comma (repo,repo)</span>
           </li>
           <li>
             <input type="number" min="1" name="refreshIntervalInMinutes" id="refreshIntervalInMinutes" defaultValue={this.config.refreshIntervalInMinutes}/>
-            <span>refresh rate in minutes</span>
+            <span><strong>Refresh rate: </strong> in minutes</span>
           </li>
           <li>
             <input type="number" min="1" name="daysForOldMark" id="daysForOldMark" defaultValue={this.config.daysForOldMark}/>
-            <span className="old">Days for old mark highlight</span>
+            <span className="old"><strong>Highlight: </strong>Days for old mark highlight</span>
+          </li>
+          <li>
+            <input type="text" name="team" id="team" placeholder="organisation/my-team" defaultValue={this.config.team}/>
+            <span><strong>Team Filter: </strong> If specified, show pull requests created only by members of the team, e.g. <strong>performgroup/my-team-slug</strong> (team members are checked only once per day)</span>
           </li>
           <li>
             <input type="text" name="vertical" id="vertical" defaultValue={this.config.vertical}/>
-            <span>Display of multiple repos horizontal/vertical</span>
+            <span><strong>Display: </strong> "horizontal" or "vertical" (applies when multiple repositories are set)</span>
           </li>
           <li>
             <input type="text" name="emoji" id="emoji" defaultValue={this.config.emoji}/>
-            <span>Show emoji based on comments number (yes/no)</span>
+            <span><strong>Show emoji: </strong> "yes" or "no" based on comments number </span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
@@ -308,6 +376,7 @@ class App extends Component {
           <ul>
             <li className="mergable">is mergable</li>
             <li className="old">older then {this.config.daysForOldMark} days</li>
+            {this.config.team ? <li className="teamFilter"><span role="img" aria-label="team"> team 😎:</span> {this.config.team}</li> : ''}
           </ul>
         </div>
         {this.renderConfig()}

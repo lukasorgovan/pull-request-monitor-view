@@ -26,11 +26,18 @@ body {
   margin: 0 10px;
   color: #fff;
 }
-.legend li.mergable {
+.legend .mergable {
   background: var(--green);
 }
-.legend li.old {
+.legend .old {
   background: var(--darkOrange);
+}
+.legend .teamFilter {
+  border: 1px solid var(--yellow);
+}
+.legend .teamFilter span {
+  font-weight: bold;
+  color: var(--yellow);
 }
 .config {
   background: #c8ccd4;
@@ -46,7 +53,7 @@ body {
   list-style-type: none;
 }
 .config li {
-  margin: 3px 0;
+  margin: 10px 0;
   display: flex;
 }
 .config span {
