@@ -15,7 +15,9 @@ class App extends Component {
       daysForOldMark: 3,
       emoji: 'no',
       vertical: 'vertical',
-      team: ''
+      team: '',
+      notifications: 'no',
+      notification_icon: ''
     }
 
     this.state = {
@@ -32,6 +34,32 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.showConfig = this.showConfig.bind(this);
     this.hideConfig = this.hideConfig.bind(this);
+  }
+  getNotificationPermission() {
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission().then(result => console.info('notifications ' + result))
+    }    
+  }
+  notifyNewPR(newPRs) {
+    newPRs.forEach(pr => {      
+      const title = pr.title;
+      const options = {
+        body: pr.user.login,
+        icon: pr.user.avatar_url,
+        requireInteraction: true
+      };
+      if (this.config.notification_icon !== '') options.icon = this.config.notification_icon;
+      new Notification(title, options);            
+    });    
+  }
+  checkNewPR(newData, oldPRs) {    
+    if(newData !== undefined) { 
+      const newPRs = this.arraysDiff('id', newData, oldPRs);           
+      if(newPRs.length > 0) this.notifyNewPR(newPRs);      
+    }   
+  }
+  arraysDiff(key, newData, oldPRs) {
+    return newData.filter(res => !oldPRs.find(res2 => res[key] === res2[key]));
   }
   getUrl(repo, type, pullURL) {
     /* Example:
@@ -53,6 +81,8 @@ class App extends Component {
     return base + requestPath;
   }
   fetchPullRequests() {
+    const tempPRData = {};
+    if(this.state.prData !== undefined) Object.assign(tempPRData, this.state.prData);    
     this.config.repo.split(',').forEach((repo) => {
       const repoName = repo.trim();
       fetch(this.getUrl(repoName))
@@ -71,6 +101,9 @@ class App extends Component {
               }
               return this.state.teamMembers.includes(pr.user.login)
             });
+            if (Notification.permission === 'granted' && this.config.notifications === 'yes' && Object.keys(tempPRData).length > 0) {
+                this.checkNewPR(data, tempPRData[repoName]);                
+            }           
             return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
@@ -141,6 +174,8 @@ class App extends Component {
         this.startFetching();
       }
     }
+
+    if (this.config.notifications === 'yes' && Notification.permission !== 'denied') this.getNotificationPermission()
   }
 
   componentDidUpdate() {
@@ -197,7 +232,7 @@ class App extends Component {
 
   displayError() {
     return this.state.error
-    ? <div className="error">Error occured. Possible issue: API limit rate exceeded or service down or access_token not permitted or repo not found. If you reach API limit, it is good to raise the refresh rate internval to higher number. Check console/network.</div>
+    ? <div className="error">Error occured. Possible issue: API limit rate exceeded or service down or access_token not permitted or repo not found. If you reach API limit, it is good to raise the refresh rate interval to higher number. Check console/network.</div>
     : ''
   }
 
@@ -318,6 +353,14 @@ class App extends Component {
             <input type="text" name="emoji" id="emoji" defaultValue={this.config.emoji}/>
             <span><strong>Show emoji: </strong> "yes" or "no" based on comments number </span>
           </li>
+          <li>
+            <input type="text" name="notifications" id="notifications" defaultValue={this.config.notifications}/>
+            <span><strong>Browser notifications: </strong> "yes" or "no" </span>
+          </li>
+          <li>
+            <input type="text" name="notification_icon" id="notification_icon" defaultValue={this.config.notification_icon}/>
+            <span><strong>Notification icon: </strong> URL </span>
+          </li>                 
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
         </form>
