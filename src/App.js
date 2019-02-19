@@ -17,7 +17,8 @@ class App extends Component {
       vertical: 'vertical',
       team: '',
       notifications: 'no',
-      notification_icon: ''
+      notification_icon: '',
+      font_size: 16
     }
 
     this.state = {
@@ -35,13 +36,17 @@ class App extends Component {
     this.showConfig = this.showConfig.bind(this);
     this.hideConfig = this.hideConfig.bind(this);
   }
+  changeFontSize() {
+    let html = document.getElementsByTagName('html')[0];
+    html.style.fontSize = this.config.font_size +'px';
+  }
   getNotificationPermission() {
     if (Notification.permission !== 'granted') {
       Notification.requestPermission().then(result => console.info('notifications ' + result))
-    }    
+    }
   }
   notifyNewPR(newPRs) {
-    newPRs.forEach(pr => {      
+    newPRs.forEach(pr => {
       const title = pr.title;
       const options = {
         body: pr.user.login,
@@ -49,14 +54,14 @@ class App extends Component {
         requireInteraction: true
       };
       if (this.config.notification_icon !== '') options.icon = this.config.notification_icon;
-      new Notification(title, options);            
+      new Notification(title, options);
     });    
   }
-  checkNewPR(newData, oldPRs) {    
+  checkNewPR(newData, oldPRs) {
     if(newData !== undefined) { 
-      const newPRs = this.arraysDiff('id', newData, oldPRs);           
-      if(newPRs.length > 0) this.notifyNewPR(newPRs);      
-    }   
+      const newPRs = this.arraysDiff('id', newData, oldPRs);
+      if(newPRs.length > 0) this.notifyNewPR(newPRs);
+    }
   }
   arraysDiff(key, newData, oldPRs) {
     return newData.filter(res => !oldPRs.find(res2 => res[key] === res2[key]));
@@ -175,7 +180,8 @@ class App extends Component {
       }
     }
 
-    if (this.config.notifications === 'yes' && Notification.permission !== 'denied') this.getNotificationPermission()
+    if (this.config.notifications === 'yes' && Notification.permission !== 'denied') this.getNotificationPermission();
+    this.changeFontSize();
   }
 
   componentDidUpdate() {
@@ -274,7 +280,7 @@ class App extends Component {
     const mergeable = this.state.mergeable[repo + '_' + pr.number]
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
-    
+
     const numOfComments = this.state.comments[repo + '_' + pr.number];
 
     return (
@@ -360,7 +366,11 @@ class App extends Component {
           <li>
             <input type="text" name="notification_icon" id="notification_icon" defaultValue={this.config.notification_icon}/>
             <span><strong>Notification icon: </strong> URL </span>
-          </li>                 
+          </li>
+          <li>
+            <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
+            <span><strong>Font size </strong></span>
+          </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
         </form>
