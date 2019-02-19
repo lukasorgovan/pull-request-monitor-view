@@ -17,7 +17,8 @@ class App extends Component {
       vertical: 'vertical',
       team: '',
       notifications: 'no',
-      notification_icon: ''
+      notification_icon: '',
+      font_size: 16
     }
 
     this.state = {
@@ -34,14 +35,18 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.showConfig = this.showConfig.bind(this);
     this.hideConfig = this.hideConfig.bind(this);
+
+    this.bodyStyle = {
+      fontSize: this.config.font_size + 'px'
+    }
   }
   getNotificationPermission() {
     if (Notification.permission !== 'granted') {
       Notification.requestPermission().then(result => console.info('notifications ' + result))
-    }    
+    }
   }
   notifyNewPR(newPRs) {
-    newPRs.forEach(pr => {      
+    newPRs.forEach(pr => {
       const title = pr.title;
       const options = {
         body: pr.user.login,
@@ -49,13 +54,13 @@ class App extends Component {
         requireInteraction: true
       };
       if (this.config.notification_icon !== '') options.icon = this.config.notification_icon;
-      new Notification(title, options);            
-    });    
+      new Notification(title, options);
+    });
   }
-  checkNewPR(newData, oldPRs) {    
-    if(newData !== undefined) { 
-      const newPRs = this.arraysDiff('id', newData, oldPRs);           
-      if(newPRs.length > 0) this.notifyNewPR(newPRs);      
+  checkNewPR(newData, oldPRs) {
+    if(newData !== undefined) {
+      const newPRs = this.arraysDiff('id', newData, oldPRs);
+      if(newPRs.length > 0) this.notifyNewPR(newPRs);
     }   
   }
   arraysDiff(key, newData, oldPRs) {
@@ -102,8 +107,8 @@ class App extends Component {
               return this.state.teamMembers.includes(pr.user.login)
             });
             if (Notification.permission === 'granted' && this.config.notifications === 'yes' && Object.keys(tempPRData).length > 0) {
-                this.checkNewPR(data, tempPRData[repoName]);                
-            }           
+                this.checkNewPR(data, tempPRData[repoName]);
+            }
             return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
@@ -131,7 +136,7 @@ class App extends Component {
         }
         responseData = data;
     });
-    
+
     if (responseData.length > 0) {
       const newData = await this.fetchOrgTeams(++page);
       responseData = responseData.concat(newData)
@@ -263,7 +268,7 @@ class App extends Component {
     const decideOldClass = (pr) => {
       const maxDays = this.config.daysForOldMark; // old if more than 7 days
       let oldClass = '';
-      
+
       if(differenceInDays(new Date(),new Date(pr.updated_at)) >= maxDays) {
         oldClass = 'old';
       }
@@ -360,7 +365,11 @@ class App extends Component {
           <li>
             <input type="text" name="notification_icon" id="notification_icon" defaultValue={this.config.notification_icon}/>
             <span><strong>Notification icon: </strong> URL </span>
-          </li>                 
+          </li>
+          <li>
+            <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
+            <span><strong>Font size </strong></span>
+          </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
         </form>
@@ -414,7 +423,7 @@ class App extends Component {
     }
 
     return (
-      <div>
+      <div style={ this.bodyStyle } >
         <div className="legend">
           <ul>
             <li className="mergable">is mergable</li>
