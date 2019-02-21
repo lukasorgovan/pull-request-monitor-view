@@ -58,7 +58,7 @@ class App extends Component {
       };
       if (this.config.notification_icon !== '') options.icon = this.config.notification_icon;
       new Notification(title, options);
-    }); 
+    });
   }
   checkNewPR(newData, oldPRs) {
     if(newData !== undefined) { 
@@ -104,7 +104,7 @@ class App extends Component {
   }
   fetchPullRequests() {
     const tempPRData = {};
-    if(this.state.prData !== undefined) Object.assign(tempPRData, this.state.prData);    
+    if(this.state.prData !== undefined) Object.assign(tempPRData, this.state.prData);
     this.config.repo.split(',').forEach((repo) => {
       const repoName = repo.trim();
       fetch(this.getUrl(repoName))
@@ -332,7 +332,7 @@ class App extends Component {
     )
   }
   saveConfig() {
-    const configElems = document.querySelectorAll('input')
+    const configElems = document.querySelectorAll('input, select')
     const configToSave = {}
 
     configElems.forEach((input) => {
@@ -378,16 +378,25 @@ class App extends Component {
             <span><strong>Team Filter: </strong> If specified, show pull requests created only by members of the team, e.g. <strong>performgroup/my-team-slug</strong> (team members are checked only once per day)</span>
           </li>
           <li>
-            <input type="text" name="vertical" id="vertical" defaultValue={this.config.vertical}/>
+            <select name="vertical" id="vertical" defaultValue={this.config.vertical}>
+              <option value="vertical">vertical</option>
+              <option value="horizontal">horizontal</option>
+            </select>
             <span><strong>Display: </strong> "horizontal" or "vertical" (applies when multiple repositories are set)</span>
           </li>
           <li>
-            <input type="text" name="emoji" id="emoji" defaultValue={this.config.emoji}/>
-            <span><strong>Show emoji: </strong> "yes" or "no" based on comments number </span>
+            <select name="emoji" id="emoji" defaultValue={this.config.emoji}>
+              <option value="no">no</option>
+              <option value="yes">yes</option>
+            </select>
+            <span><strong>Show emoji: </strong>based on comments number </span>
           </li>
           <li>
-            <input type="text" name="notifications" id="notifications" defaultValue={this.config.notifications}/>
-            <span><strong>Browser notifications: </strong> "yes" or "no" </span>
+            <select name="notifications" id="notifications" defaultValue={this.config.notifications}>
+              <option value="no">no</option>
+              <option value="yes">yes</option>
+            </select>
+            <span><strong>Browser notifications </strong> </span>
           </li>
           <li>
             <input type="text" name="notification_icon" id="notification_icon" defaultValue={this.config.notification_icon}/>
@@ -398,7 +407,11 @@ class App extends Component {
             <span><strong>Font size </strong></span>
           </li>
           <li>
-            <input type="text" name="repo_order" id="repo_order" defaultValue={this.config.repo_order}/>
+            <select name="repo_order" id="repo_order" defaultValue={this.config.repo_order}>
+              <option value="default">default</option>
+              <option value="asc">asc</option>
+              <option value="desc">desc</option>
+            </select>
             <span><strong>Repo order: </strong> if Display is set to "horizontal" order repositories by number of pull requests "asc" = less pull requests on top, "desc" = more pull requests on top</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
