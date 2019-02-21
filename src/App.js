@@ -359,7 +359,7 @@ class App extends Component {
           <ul>
           <li>
             <input type="text" name="access_token" id="access_token" placeholder="access_token" defaultValue={this.config.access_token}/>
-            <span><strong>Access token: </strong> Github access_token <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Help</a></span>
+            <span><strong>Access token: </strong> Github access_token (Make sure to check REPO rights) <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Help</a></span>
           </li>
           <li>
             <input type="text" name="repo" id="repo" placeholder="owner/repo" defaultValue={this.config.repo}/>
@@ -371,7 +371,7 @@ class App extends Component {
           </li>
           <li>
             <input type="number" min="1" name="daysForOldMark" id="daysForOldMark" defaultValue={this.config.daysForOldMark}/>
-            <span className="old"><strong>Highlight: </strong>Days for old mark highlight</span>
+            <span className="old"><strong>Highlight: </strong>(in days) Days for old mark highlight</span>
           </li>
           <li>
             <input type="text" name="team" id="team" placeholder="organisation/my-team" defaultValue={this.config.team}/>
@@ -382,7 +382,7 @@ class App extends Component {
               <option value="vertical">vertical</option>
               <option value="horizontal">horizontal</option>
             </select>
-            <span><strong>Display: </strong> "horizontal" or "vertical" (applies when multiple repositories are set)</span>
+            <span><strong>Display: </strong>display setting for multiple repositories</span>
           </li>
           <li>
             <select name="emoji" id="emoji" defaultValue={this.config.emoji}>
@@ -396,15 +396,15 @@ class App extends Component {
               <option value="no">no</option>
               <option value="yes">yes</option>
             </select>
-            <span><strong>Browser notifications </strong> </span>
+            <span><strong>Browser notifications: </strong> turn on/off to get notification in browser when you have tab open and switch to differnt tab</span>
           </li>
           <li>
             <input type="text" name="notification_icon" id="notification_icon" defaultValue={this.config.notification_icon}/>
-            <span><strong>Notification icon: </strong> URL </span>
+            <span><strong>Notification icon: </strong>URL string - if set it will always display specified image from the url</span>
           </li>
           <li>
             <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
-            <span><strong>Font size </strong></span>
+            <span><strong>Font size: </strong>default font-size - other elements will scale accordingly</span>
           </li>
           <li>
             <select name="repo_order" id="repo_order" defaultValue={this.config.repo_order}>
@@ -412,7 +412,7 @@ class App extends Component {
               <option value="asc">asc</option>
               <option value="desc">desc</option>
             </select>
-            <span><strong>Repo order: </strong> if Display is set to "horizontal" order repositories by number of pull requests "asc" = less pull requests on top, "desc" = more pull requests on top</span>
+            <span><strong>Repo order: </strong>order repositories by number of pull requests. <strong>"default"</strong> will sort by order in the "Repositories" config item. (Works only in "horizontal" display mode. )</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
