@@ -18,7 +18,8 @@ class App extends Component {
       team: '',
       notifications: 'no',
       notification_icon: '',
-      font_size: 16
+      font_size: 16,
+      repo_order: 'default'
     }
 
     this.state = {
@@ -35,6 +36,8 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.showConfig = this.showConfig.bind(this);
     this.hideConfig = this.hideConfig.bind(this);
+
+    this.counter = 0;
   }
   changeFontSize() {
     let html = document.getElementsByTagName('html')[0];
@@ -55,7 +58,7 @@ class App extends Component {
       };
       if (this.config.notification_icon !== '') options.icon = this.config.notification_icon;
       new Notification(title, options);
-    });    
+    }); 
   }
   checkNewPR(newData, oldPRs) {
     if(newData !== undefined) { 
@@ -65,6 +68,20 @@ class App extends Component {
   }
   arraysDiff(key, newData, oldPRs) {
     return newData.filter(res => !oldPRs.find(res2 => res[key] === res2[key]));
+  }
+  orderRepos(prData) {
+    let repos = this.config.repo.split(',').sort((a, b) => {
+      a = prData[a.trim()].length;
+      b = prData[b.trim()].length;
+
+      if (this.config.repo_order.toLowerCase() === 'asc') {
+        return a === b ? 0 : a < b ? -1 : 1; 
+      } else {
+        return a === b ? 0 : a > b ? -1 : 1; 
+      }
+    });
+
+    this.config.repo = repos.join();
   }
   getUrl(repo, type, pullURL) {
     /* Example:
@@ -107,8 +124,17 @@ class App extends Component {
               return this.state.teamMembers.includes(pr.user.login)
             });
             if (Notification.permission === 'granted' && this.config.notifications === 'yes' && Object.keys(tempPRData).length > 0) {
-                this.checkNewPR(data, tempPRData[repoName]);                
-            }           
+                this.checkNewPR(data, tempPRData[repoName]);
+            }
+
+            if (this.config.vertical !== 'vertical' && this.config.repo_order.toLowerCase() !== 'default') {
+              this.counter++;
+              if (this.config.repo.split(',').length === this.counter) {
+                this.orderRepos(newStatePRData);
+                this.counter = 0;
+              }
+            }
+
             return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
           });
         }
@@ -370,6 +396,10 @@ class App extends Component {
           <li>
             <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
             <span><strong>Font size </strong></span>
+          </li>
+          <li>
+            <input type="text" name="repo_order" id="repo_order" defaultValue={this.config.repo_order}/>
+            <span><strong>Repo order: </strong> if Display is set to "horizontal" order repositories by number of pull requests "asc" = less pull requests on top, "desc" = more pull requests on top</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
