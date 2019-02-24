@@ -56,6 +56,9 @@ body {
   margin: 10px 0;
   display: flex;
 }
+.config li.hidden {
+  display: none;
+}
 .config span {
   margin: 0 10px;
   font-size: 0.875rem;
