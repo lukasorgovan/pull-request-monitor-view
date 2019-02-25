@@ -83,6 +83,16 @@ class App extends Component {
 
     this.config.repo = repos.join();
   }
+  showHideOrder() {
+    const vertical = document.querySelector('#vertical').value;
+    let order = document.querySelector('#repo_order').parentElement;
+
+    if (vertical === 'vertical') {
+      order.classList.add('hidden');
+    } else {
+      order.classList.remove('hidden');
+    }
+  }
   getUrl(repo, type, pullURL) {
     /* Example:
     ** https://developer.github.com/v3/pulls/
@@ -378,11 +388,19 @@ class App extends Component {
             <span><strong>Team Filter: </strong> If specified, show pull requests created only by members of the team, e.g. <strong>performgroup/my-team-slug</strong> (team members are checked only once per day)</span>
           </li>
           <li>
-            <select name="vertical" id="vertical" defaultValue={this.config.vertical}>
+            <select name="vertical" id="vertical" defaultValue={this.config.vertical} onChange={this.showHideOrder}>
               <option value="vertical">vertical</option>
               <option value="horizontal">horizontal</option>
             </select>
             <span><strong>Display: </strong>display setting for multiple repositories</span>
+          </li>
+          <li className={this.config.vertical === 'vertical' ? 'hidden' : ''}>
+            <select name="repo_order" id="repo_order" defaultValue={this.config.repo_order}>
+              <option value="default">default</option>
+              <option value="asc">asc</option>
+              <option value="desc">desc</option>
+            </select>
+            <span><strong>Repo order: </strong>order repositories by number of pull requests. <strong>"default"</strong> will sort by order in the "Repositories" config item. (Works only in "horizontal" display mode. )</span>
           </li>
           <li>
             <select name="emoji" id="emoji" defaultValue={this.config.emoji}>
@@ -405,14 +423,6 @@ class App extends Component {
           <li>
             <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
             <span><strong>Font size: </strong>default font-size - other elements will scale accordingly</span>
-          </li>
-          <li>
-            <select name="repo_order" id="repo_order" defaultValue={this.config.repo_order}>
-              <option value="default">default</option>
-              <option value="asc">asc</option>
-              <option value="desc">desc</option>
-            </select>
-            <span><strong>Repo order: </strong>order repositories by number of pull requests. <strong>"default"</strong> will sort by order in the "Repositories" config item. (Works only in "horizontal" display mode. )</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
