@@ -85,12 +85,14 @@ class App extends Component {
   }
   showHideOrder() {
     const vertical = document.querySelector('#vertical').value;
-    let order = document.querySelector('#repo_order').parentElement;
+    let order = document.querySelector('#repo_order');
 
     if (vertical === 'vertical') {
-      order.classList.add('hidden');
+      order.parentElement.classList.add('hidden');
     } else {
-      order.classList.remove('hidden');
+      order.parentElement.classList.remove('hidden');
+      order.classList.add('highlight');
+      setTimeout(() => order.classList.remove('highlight'), 100);
     }
   }
   getUrl(repo, type, pullURL) {
