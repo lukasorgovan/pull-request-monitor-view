@@ -42,6 +42,5 @@ jobs:
       # run build!
 
       - run: npm run build
-
-  gh-pages/deploy:
-    build-dir: build
+      - gh-pages/deploy:
+          ssh-fingerprints: '60:1f:cb:fd:5c:c0:b3:e5:85:5b:05:ed:45:12:bb:d0'
