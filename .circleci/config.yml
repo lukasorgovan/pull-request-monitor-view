@@ -3,6 +3,8 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2
+orbs:
+  gh-pages: sugarshin/gh-pages@0.0.6
 jobs:
   build:
     docker:
@@ -40,12 +42,8 @@ jobs:
       # run build!
 
       - run: npm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build
-
       
       - run:
           name: Deploy docs to gh-pages branch
-          command: gh-pages --dist build
+      -gh-pages/deploy:
+          build-dir: build
