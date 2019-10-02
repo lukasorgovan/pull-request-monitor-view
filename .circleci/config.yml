@@ -33,17 +33,19 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+      - run:
+          name: Install and configure dependencies
+          command: npm install -g --silent gh-pages@2.0.1
+      
       # run build!
+
       - run: npm run build
       - persist_to_workspace:
           root: .
           paths:
             - build
 
-      - run:
-          name: Install and configure dependencies
-          command: |
-            npm install -g --silent gh-pages@2.0.1
+      
       - run:
           name: Deploy docs to gh-pages branch
           command: gh-pages --dist build
