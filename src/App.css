@@ -70,6 +70,10 @@ body {
 .config select {
   min-width: 312px;
   height: 25px;
+  transition: background .4s ease;
+}
+.config .highlight {
+  background: #EC342A; 
 }
 .config .button {
   display: inline-block;
