@@ -6,6 +6,7 @@
   --green: rgb(42, 167, 104);
   --darkGreen: rgb(46, 136, 81);
   --yellow: rgb(243, 149, 13);
+  --bright-yellow: rgb(255, 255, 0);
   --darkOrange: rgb(154, 96, 0);
 }
 html {
@@ -164,15 +165,34 @@ body {
 }
 .pull-request-title {
   font-size: 1rem;
+  line-height: 1.8;
 }
-.pull-request-state {
-  font-size: 0.5rem;
+.pull-request-label {
+  font-size: 0.7rem;
   font-weight: bold;
-  color: var(--green);
+  background-color: var(--green);
+  color: white;
   border: 1px solid var(--green);
   padding: 5px;
   border-radius: 5px;
   margin-right: 10px;
+}
+.label-css {
+  background-color: orange;
+  border: orange;
+}
+.label-ship-it {
+  background-color: var(--green);
+  border: var(--green);
+}
+.label-needs-review {
+  background-color: var(--bright-yellow);
+  border: var(--bright-yellow);
+  color: black;
+}
+.label-core-component {
+  background-color: var(--blue);
+  border: var(--blue);
 }
 .pull-request-ago {
   color: #72deef;
@@ -231,7 +251,7 @@ body {
   top: -4px;
   left: -4px;
 }
-.review_comments {
+.review_comments, .review_upvotes, .review_downvotes {
   display: inline-block;
   background: #353535;
   color: #fff;

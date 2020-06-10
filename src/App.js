@@ -101,15 +101,24 @@ class App extends Component {
     ** GET /repos/:owner/:repo/pulls
     ** ?access_token=:acces_token
     */
-    const base = repo ? `https://api.github.com/repos/${repo}/pulls` : pullURL;
-    let requestPath = ''
-    
-    if (type === 'reviews') {
-      requestPath = '/reviews'
-    }
+   let requestPath = ''
+   let base = ''
 
-    if (this.config.access_token) {
-      requestPath += `?access_token=${this.config.access_token}`
+    if (this.config.source === 'gitlab') {
+      base = `https://git.catassetintel.com/api/v4/projects/${repo}/merge_requests?state=opened`;
+      if (this.config.access_token) {
+        requestPath += `&private_token=${this.config.access_token}`
+      }
+    } else {
+      base = repo ? `https://api.github.com/repos/${repo}/pulls` : pullURL;
+      
+      if (type === 'reviews') {
+        requestPath = '/reviews'
+      }
+
+      if (this.config.access_token) {
+        requestPath += `?access_token=${this.config.access_token}`
+      }
     }
 
     return base + requestPath;
@@ -224,7 +233,7 @@ class App extends Component {
 
   componentDidUpdate() {
     // Fetch aditional reviews data only when there hasn't been fired request for it already
-    if (!this.state.reviewsFetchFired && Object.keys(this.state.prData).length > 0) {
+    if (!this.state.reviewsFetchFired && Object.keys(this.state.prData).length > 0 && this.config.source === 'github') {
       Object.keys(this.state.prData).forEach((repoName) => {
         this.state.prData[repoName].forEach((pr) => {
           fetch(this.getUrl(undefined, 'reviews', pr.url))
@@ -304,6 +313,7 @@ class App extends Component {
   }
 
   renderPR(repo, pr) {
+    debugger;
     const decideOldClass = (pr) => {
       const maxDays = this.config.daysForOldMark; // old if more than 7 days
       let oldClass = '';
@@ -319,25 +329,33 @@ class App extends Component {
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
 
-    const numOfComments = this.state.comments[repo + '_' + pr.number];
-
+    const numOfComments = this.config.source === 'gitlab' ? pr.user_notes_count : this.state.comments[repo + '_' + pr.number];
+    let author = pr.user || pr.author;
     return (
-      <div key={pr.number} className={`pull-request-wrap ${decideOldClass(pr)}  ${mergeable}`}>
+      <div key={pr.number || pr.iid} className={`pull-request-wrap ${decideOldClass(pr)}  ${mergeable}`}>
         <div className="pull-request-title">
-          <span className="pull-request-user"><img src={pr.user.avatar_url} title={pr.user.login} alt="user"/></span>
-          <span className="pull-request-state">{pr.state}</span>
+          <span className="pull-request-user"><img src={author.avatar_url} title={author.login || author.name} alt="user"/></span>
+          {pr.labels ? pr.labels.map(label => <span className={`pull-request-label label-${label}`}>{label}</span>) : ''}
           <span>{pr.title}</span>
         </div>
         <div className="pull-request-meta">
           <div>
             <span className="pull-request-number">
-              <a href={pr.html_url} rel="noopener noreferrer" target="_blank">{pr.number}</a>
+              <a href={pr.html_url || pr.web_url} rel="noopener noreferrer" target="_blank">{pr.number | pr.iid}</a>
             </span> 
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
           <div>
-            <div className="review_comments"><span role="img" aria-label="comments:">💬</span> {numOfComments} {this.renderEmoji(numOfComments)}</div>
-            {this.renderReviews(repo, pr.number)}
+            <div className="review_comments"><span role="img" aria-label="comments:">💬 </span> {numOfComments} {this.renderEmoji(numOfComments)}</div>
+            {pr.upvotes ? <div className="review_upvotes"><span role="img" aria-label="upvotes:">👍 </span> {pr.upvotes}</div> : ''}
+            {pr.downvotes ? <div className="review_downvotes"><span role="img" aria-label="downvotes:">👎 </span> {pr.downvotes}</div> : ''}
+
+
+            {
+            this.config.source === 'github' ? 
+            this.renderReviews(repo, pr.number)
+            : ''
+            }
           </div>
           </div>
       </div>
@@ -369,6 +387,13 @@ class App extends Component {
         <div className="app-name"><img src={process.env.PUBLIC_URL + '/app-icon.png'} alt="app-icon"/> <span>Github PR Wall montior</span></div>
         <form>
           <ul>
+          <li>
+            <select name="source" id="source" defaultValue={this.config.source}>
+              <option value="github">Github</option>
+              <option value="gitlab">gitlab</option>
+            </select>
+            <span><strong>Display: </strong>display setting for multiple repositories</span>
+          </li>
           <li>
             <input type="text" name="access_token" id="access_token" placeholder="access_token" defaultValue={this.config.access_token}/>
             <span><strong>Access token: </strong> Github access_token (Make sure to check REPO rights) <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Help</a></span>
