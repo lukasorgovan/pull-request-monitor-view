@@ -313,7 +313,6 @@ class App extends Component {
   }
 
   renderPR(repo, pr) {
-    debugger;
     const decideOldClass = (pr) => {
       const maxDays = this.config.daysForOldMark; // old if more than 7 days
       let oldClass = '';
