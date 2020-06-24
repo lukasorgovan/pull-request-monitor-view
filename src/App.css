@@ -190,6 +190,12 @@ body {
   border: var(--bright-yellow);
   color: black;
 }
+
+label-needs-change-review {
+  background-color: var(--red);
+  border: var(--red);
+}
+
 .label-core-component {
   background-color: var(--blue);
   border: var(--blue);
