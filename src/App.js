@@ -313,7 +313,6 @@ class App extends Component {
   }
 
   renderPR(repo, pr) {
-    debugger;
     const decideOldClass = (pr) => {
       const maxDays = this.config.daysForOldMark; // old if more than 7 days
       let oldClass = '';
@@ -324,6 +323,13 @@ class App extends Component {
 
       return oldClass;
     }
+    const isWIP = (title) => {
+      return title.toLowerCase().indexOf('[wip]') > -1 ? 'label-WIP' : '';
+    }
+
+    const isFresh = (updated_at) => {
+      return Date.now() - new Date(updated_at).getTime() < 15 * 60 * 1000 ? 'fresh' : '';
+    }
 
     const mergeable = this.state.mergeable[repo + '_' + pr.number]
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
@@ -332,7 +338,7 @@ class App extends Component {
     const numOfComments = this.config.source === 'gitlab' ? pr.user_notes_count : this.state.comments[repo + '_' + pr.number];
     let author = pr.user || pr.author;
     return (
-      <div key={pr.number || pr.iid} className={`pull-request-wrap ${decideOldClass(pr)}  ${mergeable}`}>
+      <div key={pr.number || pr.iid} className={`pull-request-wrap ${isFresh(pr.updated_at)} ${decideOldClass(pr)}  ${mergeable} ${isWIP(pr.title)}`}>
         <div className="pull-request-title">
           <span className="pull-request-user"><img src={author.avatar_url} title={author.login || author.name} alt="user"/></span>
           {pr.labels ? pr.labels.map(label => <span className={`pull-request-label label-${label}`}>{label}</span>) : ''}
@@ -489,6 +495,11 @@ class App extends Component {
     if (!repoPR) {
       return <div key={repoName}><h4 className="repo-heading">{repoName}</h4></div>
     }
+    
+    repoPR.sort((a,b) => {
+      return new Date(b.updated_at) - new Date(a.updated_at);
+    });
+
     return <div key={repoName} className={repoName}><h4 className="repo-heading">{repoName}</h4>{repoPR.map(pr => this.renderPR(repoName, pr))}</div>
 
   }
@@ -508,7 +519,9 @@ class App extends Component {
         <div className="legend">
           <ul>
             <li className="mergable">is mergable</li>
-            <li className="old">older then {this.config.daysForOldMark} days</li>
+            <li className="old">older than {this.config.daysForOldMark} days</li>
+            <li className="fresh">updated recently (&lt; 15min)</li>
+
             {this.config.team ? <li className="teamFilter"><span role="img" aria-label="team"> team 😎:</span> {this.config.team}</li> : ''}
           </ul>
         </div>

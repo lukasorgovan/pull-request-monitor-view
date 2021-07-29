@@ -3,6 +3,7 @@
   --elem-bg: rgb(62, 68, 83);
   --blue: rgb(39, 160, 175);
   --red: rgb(236, 52, 42);
+  --darkRed: #cc0033;
   --green: rgb(42, 167, 104);
   --darkGreen: rgb(46, 136, 81);
   --yellow: rgb(243, 149, 13);
@@ -32,6 +33,9 @@ body {
 }
 .legend .old {
   background: var(--darkOrange);
+}
+.legend .fresh {
+  box-shadow: 0px 0px 20px rgb(75 220 39);
 }
 .legend .teamFilter {
   border: 1px solid var(--yellow);
@@ -157,6 +161,9 @@ body {
 .pull-request-wrap.mergeable {
   background: var(--darkGreen);
 }
+.pull-request-wrap.fresh {
+  box-shadow: 0px 0px 20px rgb(75 220 39);
+}
 .pull-request-meta {
   display: flex;
   justify-content: space-between;
@@ -184,6 +191,10 @@ body {
 .label-ship-it {
   background-color: var(--green);
   border: var(--green);
+}
+.label-WIP {
+  background-color: var(--darkRed);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 .label-needs-review {
   background-color: var(--bright-yellow);
@@ -298,3 +309,4 @@ body {
   50%  {background: var(--green);}
   100% {background: none;}
 }
+
