@@ -19,15 +19,18 @@ class App extends Component {
       notifications: 'no',
       notification_icon: '',
       font_size: 16,
-      repo_order: 'default'
+      repo_order: 'default',
+      theme: 'dark'
     }
 
     this.state = {
       error: false,
       bootstraped: false,
       reviewsFetchFired: false,
+      votesFetchFired: false,
       prData: {},
       prReviews: {},
+      prVotes: {},
       mergeable: {},
       comments: {},
       teamMembers: [],
@@ -38,6 +41,12 @@ class App extends Component {
     this.hideConfig = this.hideConfig.bind(this);
 
     this.counter = 0;
+    this.setTheme();
+  }
+  setTheme() {
+    if (this.config.theme === 'kitty') {
+      document.querySelector('body').setAttribute('data-theme', 'kitty');
+    }
   }
   changeFontSize() {
     let html = document.getElementsByTagName('html')[0];
@@ -156,7 +165,7 @@ class App extends Component {
               }
             }
 
-            return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false}
+            return { error: false, bootstraped: true, prData:newStatePRData, prReviews: {}, reviewsFetchFired: false, votesFetchFired: false}
           });
         }
       })
@@ -277,6 +286,24 @@ class App extends Component {
 
       this.setState( {reviewsFetchFired: true} );
     }
+
+    if (!this.state.votesFetchFired && Object.keys(this.state.prData).length > 0 && this.config.source === 'gitlab') {
+      Object.keys(this.state.prData).forEach((repoName) => {
+        this.state.prData[repoName].forEach((pr) => {
+          fetch(`https://git.catassetintel.com/api/v4/projects/${repoName}/merge_requests/${pr.iid}/award_emoji?private_token=${this.config.access_token}`)
+          .then(response => response.json())
+          .then((data) => {
+            const votes = {
+              ...this.state.prVotes,
+              [repoName + '_' + pr.iid]: data.filter(vote => vote.name === 'thumbsup')
+            }
+            this.setState( {prVotes: votes} );
+          })
+          .catch((error) => this.handleError(error))
+        })
+     });
+     this.setState( {votesFetchFired: true} );
+    }
   }
   handleError(error) {
     console.warn(error);
@@ -335,12 +362,16 @@ class App extends Component {
       && this.state.mergeable[repo + '_' + pr.number].mergeable 
       && this.state.mergeable[repo + '_' + pr.number].mergeable_state === 'clean' ? ' mergeable' : '';
 
-    const numOfComments = this.config.source === 'gitlab' ? pr.user_notes_count : this.state.comments[repo + '_' + pr.number];
+    const upvoters = !this.state.prVotes[repo + '_' + pr.iid] ? '' : this.state.prVotes[repo + '_' + pr.iid].map((vote) => vote.user.name).join('\n');
+
     let author = pr.user || pr.author;
+    const bowColor = author.name.includes('ova') ? 'pink' : 'blue';
+
+    const numOfComments = this.config.source === 'gitlab' ? pr.user_notes_count : this.state.comments[repo + '_' + pr.number];
     return (
       <div key={pr.number || pr.iid} className={`pull-request-wrap ${isFresh(pr.updated_at)} ${decideOldClass(pr)}  ${mergeable} ${isWIP(pr.title)}`}>
         <div className="pull-request-title">
-          <span className="pull-request-user"><img src={author.avatar_url} title={author.login || author.name} alt="user"/></span>
+          <span className={`pull-request-user ${(this.config.theme === 'kitty' ? 'bow ' + bowColor : '')}`}><img src={author.avatar_url} title={author.login || author.name} alt="user"/></span>
           {pr.labels ? pr.labels.map(label => <span className={`pull-request-label label-${label}`}>{label}</span>) : ''}
           <span>{pr.title}</span>
         </div>
@@ -351,9 +382,15 @@ class App extends Component {
             </span> 
             <span>Updated: <span className="pull-request-ago">{distanceInWords(new Date(), new Date(pr.updated_at))}</span> ago.</span>
           </div>
-          <div>
+          <div style={{ display: 'flex' }}>
             <div className="review_comments"><span role="img" aria-label="comments:">💬 </span> {numOfComments} {this.renderEmoji(numOfComments)}</div>
-            {pr.upvotes ? <div className="review_upvotes"><span role="img" aria-label="upvotes:">👍 </span> {pr.upvotes}</div> : ''}
+            <div>
+              {pr.upvotes
+                ? <Tooltip className="pull-request-tooltip-upvoters" content={upvoters}><div className="review_upvotes"><span role="img" aria-label="upvotes:">👍 </span> {pr.upvotes}</div></Tooltip>
+                : '' }
+
+            </div>
+
             {pr.downvotes ? <div className="review_downvotes"><span role="img" aria-label="downvotes:">👎 </span> {pr.downvotes}</div> : ''}
 
 
@@ -374,6 +411,8 @@ class App extends Component {
     configElems.forEach((input) => {
       configToSave[input.name] = input.value
     })
+
+    this.setTheme();
 
     localStorage.setItem('prwallconfig', JSON.stringify(configToSave))
     window.location.reload();
@@ -456,6 +495,13 @@ class App extends Component {
           <li>
             <input type="number" name="font_size" id="font_size" defaultValue={this.config.font_size}/>
             <span><strong>Font size: </strong>default font-size - other elements will scale accordingly</span>
+          </li>
+          <li>
+            <select name="theme" id="theme" defaultValue={this.config.theme}>
+              <option value="dark">dark</option>
+              <option value="kitty">kitty</option>
+            </select>
+            <span><strong>Theme: </strong>dark or hello kitty</span>
           </li>
           <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
           </ul>
