@@ -41,10 +41,10 @@ class App extends Component {
     this.hideConfig = this.hideConfig.bind(this);
 
     this.counter = 0;
-    this.setTheme();
+    this.setTheme(this.config.theme);
   }
-  setTheme() {
-    if (this.config.theme === 'kitty') {
+  setTheme(theme) {
+    if (theme === 'kitty') {
       document.querySelector('body').setAttribute('data-theme', 'kitty');
     }
   }
@@ -412,7 +412,7 @@ class App extends Component {
       configToSave[input.name] = input.value
     })
 
-    this.setTheme();
+    this.setTheme(configToSave.theme);
 
     localStorage.setItem('prwallconfig', JSON.stringify(configToSave))
     window.location.reload();
@@ -503,7 +503,7 @@ class App extends Component {
             </select>
             <span><strong>Theme: </strong>dark or hello kitty</span>
           </li>
-          <li><span className="button" onClick={this.saveConfig}>Save Config</span></li>
+          <li><span className="button" onClick={this.saveConfig.bind(this)}>Save Config</span></li>
           </ul>
         </form>
       </div>
