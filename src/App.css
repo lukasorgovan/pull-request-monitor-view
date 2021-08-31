@@ -15,7 +15,7 @@
   --text-review: #000;
 }
 [data-theme="kitty"] {
-  --main-bg: url(https://wallpaper.dog/large/17040937.jpg);
+  --main-bg: url('./kitty_bg.jpeg');
   --elem-bg: #ef8cbd;
   --blue: #e81b89;
   --red: rgb(236, 52, 42);
