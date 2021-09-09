@@ -9,6 +9,26 @@
   --yellow: rgb(243, 149, 13);
   --bright-yellow: rgb(255, 255, 0);
   --darkOrange: rgb(154, 96, 0);
+  --pull-request-ago: #72deef;
+  --fresh: 0px 0px 20px rgb(75 220 39);
+  --text-legend: #fff;
+  --text-review: #000;
+}
+[data-theme="kitty"] {
+  --main-bg: url('./kitty_bg.jpeg');
+  --elem-bg: #ef8cbd;
+  --blue: #e81b89;
+  --red: rgb(236, 52, 42);
+  --darkRed: #cc0033;
+  --green: #00A693;
+  --darkGreen: #00674b;
+  --yellow: #F9629F;
+  --bright-yellow: #662d91;
+  --darkOrange: #eec0c8;
+  --pull-request-ago: #662d91;
+  --fresh: 0px 0px 20px #0CAFFF;
+  --text-legend: #4B0082;
+  --text-review: #fff;
 }
 html {
   font-size: 100%;
@@ -35,7 +55,8 @@ body {
   background: var(--darkOrange);
 }
 .legend .fresh {
-  box-shadow: 0px 0px 20px rgb(75 220 39);
+  box-shadow: var(--fresh);
+  color: var(--text-legend);
 }
 .legend .teamFilter {
   border: 1px solid var(--yellow);
@@ -151,6 +172,9 @@ body {
 .pull-request-reivew-tooltip {
   display: inline-block;
 }
+.pull-request-tooltip-upvoters {
+  white-space: pre-wrap;
+}
 .pull-request-wrap.old {
   background: var(--darkOrange);
 }
@@ -162,7 +186,7 @@ body {
   background: var(--darkGreen);
 }
 .pull-request-wrap.fresh {
-  box-shadow: 0px 0px 20px rgb(75 220 39);
+  box-shadow: var(--fresh);
 }
 .pull-request-meta {
   display: flex;
@@ -199,14 +223,14 @@ body {
 .label-needs-review {
   background-color: var(--bright-yellow);
   border: var(--bright-yellow);
-  color: black;
+  color: var(--text-review);
 }
 .label-core-component {
   background-color: var(--blue);
   border: var(--blue);
 }
 .pull-request-ago {
-  color: #72deef;
+  color: var(--pull-request-ago);
 }
 .pull-request-number {
   display: inline-block;
@@ -240,7 +264,44 @@ body {
 .pull-request-user img {
   width: 100%;
   border-radius: 30px;
+  position: relative
 }
+.pull-request-user.bow::after {
+  content: '';
+  background: url('./bow.png');
+  width: 32px;
+  height: 32px;
+  display: block;
+  position: absolute;
+  top: -16px;
+  right: -12px;
+  background-position: center center;
+  background-size: contain;
+}
+.pull-request-user.bow.blue::after {
+  content: '';
+  background: url('./bow1.png');
+  width: 32px;
+  height: 32px;
+  display: block;
+  position: absolute;
+  top: -16px;
+  right: -12px;
+  background-position: center center;
+  background-size: contain;
+}
+/*.pull-request-user.bow.blue::after {
+  content: '';
+  background: url('./cap.png');
+  width: 43px;
+  height: 25px;
+  display: block;
+  position: absolute;
+  top: -12px;
+  right: -3px;
+  background-position: center center;
+  background-size: contain;
+}*/
 .pull-request-review {
   display: inline-block;
   position: relative;
