@@ -336,6 +336,9 @@ class App extends Component {
     if (numOfComments > 20) {
       emoji = '💩';
     }
+    if (numOfComments > 80) {
+      emoji = '🗑';
+    }
     return <span role="img" aria-label="feeling based on comments">{emoji}</span>
   }
 
