@@ -114,7 +114,7 @@ class App extends Component {
    let base = ''
 
     if (this.config.source === 'gitlab') {
-      base = `https://git.catassetintel.com/api/v4/projects/${repo}/merge_requests?state=opened`;
+      base = `http://git.esrgtech.com/api/v4/projects/${repo}/merge_requests?state=opened`;
       if (this.config.access_token) {
         requestPath += `&private_token=${this.config.access_token}`
       }
@@ -290,7 +290,7 @@ class App extends Component {
     if (!this.state.votesFetchFired && Object.keys(this.state.prData).length > 0 && this.config.source === 'gitlab') {
       Object.keys(this.state.prData).forEach((repoName) => {
         this.state.prData[repoName].forEach((pr) => {
-          fetch(`https://git.catassetintel.com/api/v4/projects/${repoName}/merge_requests/${pr.iid}/award_emoji?private_token=${this.config.access_token}`)
+          fetch(`http://git.esrgtech.com/api/v4/projects/${repoName}/merge_requests/${pr.iid}/award_emoji?private_token=${this.config.access_token}`)
           .then(response => response.json())
           .then((data) => {
             const votes = {
